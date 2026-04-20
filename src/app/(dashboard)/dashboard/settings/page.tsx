@@ -1,6 +1,6 @@
 import { UserCircle, Mail, Shield, Bell, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { signOut } from '@/app/actions/auth'
+import { signOut } from '@/app/(auth)/actions'
 
 export default async function SettingsPage() {
   const supabase = await createClient()

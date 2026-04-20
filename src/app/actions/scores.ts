@@ -44,7 +44,7 @@ export async function addScore(formData: FormData) {
     .select('id')
     .eq('user_id', user.id)
     .eq('date', date)
-    .single()
+    .maybeSingle()
 
   if (existing) {
     return { error: 'A score already exists for this date. Please edit the existing entry.' }
