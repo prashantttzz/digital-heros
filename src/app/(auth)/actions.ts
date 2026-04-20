@@ -10,7 +10,7 @@ export async function login(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
@@ -19,7 +19,19 @@ export async function login(formData: FormData) {
     return { error: error.message }
   }
 
+  // Fetch user role to determine redirect path
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', data.user!.id)
+    .maybeSingle()
+
   revalidatePath('/', 'layout')
+  
+  if (profile?.role === 'admin') {
+    redirect('/admin')
+  }
+
   redirect('/dashboard')
 }
 
@@ -43,11 +55,6 @@ export async function signup(formData: FormData) {
   if (error) {
     return { error: error.message }
   }
-
-  // Note: Profile creation is usually handled by a Supabase Trigger (auth.users -> profiles)
-  // But we can also do it here if triggers aren't set up.
-  // Given our schema, profiles links to auth.users. 
-  // Let's assume there's a trigger or we insert manually.
 
   revalidatePath('/', 'layout')
   redirect('/dashboard')

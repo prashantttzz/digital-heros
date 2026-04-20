@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Trophy, Calendar, Zap, AlertCircle, CheckCircle2, History } from 'lucide-react'
 import { simulateDraw, publishDraw } from '@/app/actions/draws'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
 
 export default function AdminDrawsPage() {
   const [winningNumbers, setWinningNumbers] = useState<number[]>([0, 0, 0, 0, 0])
