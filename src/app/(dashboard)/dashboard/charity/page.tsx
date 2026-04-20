@@ -5,6 +5,7 @@ import { Heart, Check, ArrowRight, TrendingUp, Search } from 'lucide-react'
 import { getCharities, updateCharityPreference } from '@/app/actions/charity'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { createClient as createSupabaseClient } from '@/lib/supabase/client'
 
 export default function CharityDashboard() {
   const [charities, setCharities] = useState<any[]>([])
@@ -17,7 +18,7 @@ export default function CharityDashboard() {
     getCharities().then(setCharities)
     
     const fetchProfile = async () => {
-      const supabase = createClient()
+      const supabase = createSupabaseClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 

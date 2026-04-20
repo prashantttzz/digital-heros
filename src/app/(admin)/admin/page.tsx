@@ -100,7 +100,7 @@ export default async function AdminDashboard() {
                 <WinnerRow 
                   key={winner.id}
                   name={winner.profiles?.full_name || 'Anonymous Hero'} 
-                  draw={format(new Date(winner.draws?.draw_date), 'MMMM yyyy')}
+                  draw={format(new Date(winner.draws?.draw_date!), 'MMMM yyyy')}
                   prize={`£${winner.prize_amount.toFixed(2)}`}
                   status={winner.status}
                 />
