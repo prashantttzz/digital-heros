@@ -17,8 +17,9 @@ export function useAuth() {
       if (error) throw error
       router.push('/login')
       toast.success('Signed out successfully')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign out')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to sign out'
+      toast.error(message)
     } finally {
       setIsLoading(false)
     }

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Calendar, Trophy, Send, History } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 import { addScore } from '@/app/actions/scores'
@@ -27,7 +26,7 @@ export function ScoreEntryForm() {
       
       toast.success('Score saved successfully! Oldest score removed.')
       setValue('')
-    } catch (error) {
+    } catch {
       toast.error('Failed to save score')
     } finally {
       setIsSubmitting(false)

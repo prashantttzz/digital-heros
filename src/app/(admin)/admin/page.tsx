@@ -16,6 +16,7 @@ import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { Winner } from '@/types'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -31,7 +32,7 @@ export default async function AdminDashboard() {
   const { data: activeSubs } = await supabase.from('subscriptions').select('*').eq('status', 'active')
   const { data: latestDraw } = await supabase.from('draws').select('*').order('draw_date', { ascending: false }).limit(1).maybeSingle()
 
-  const impactTotal = (totalWinnings || []).reduce((acc: number, curr: any) => acc + curr.prize_amount, 0)
+  const impactTotal = (totalWinnings || []).reduce((acc: number, curr: { prize_amount: number }) => acc + curr.prize_amount, 0)
 
   return (
     <div className="space-y-12">
@@ -95,7 +96,7 @@ export default async function AdminDashboard() {
             </div>
 
             <div className="space-y-4">
-               {winners && winners.length > 0 ? winners.map((winner: any) => (
+               {winners && winners.length > 0 ? (winners as unknown as Winner[]).map((winner) => (
                 <WinnerRow 
                   key={winner.id}
                   name={winner.profiles?.full_name || 'Anonymous Hero'} 

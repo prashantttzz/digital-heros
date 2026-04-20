@@ -37,9 +37,10 @@ export function ProofUpload({ winnerId, onUploadComplete }: { winnerId: string, 
       
       toast.success('Proof uploaded successfully!')
       onUploadComplete()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error)
-      toast.error(error.message || 'Failed to upload proof')
+      const message = error instanceof Error ? error.message : 'Failed to upload proof'
+      toast.error(message)
     } finally {
       setIsUploading(false)
     }

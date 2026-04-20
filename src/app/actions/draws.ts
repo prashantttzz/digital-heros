@@ -68,7 +68,14 @@ export async function publishDraw(drawDate: string, winningNumbers: number[], po
 
   if (winnersList.match5.length > 0) {
     const share = pool5 / winnersList.match5.length
-    winnersList.match5.forEach(uid => winnersToInsert.push({ draw_id: draw.id, user_id: uid, match_type: 5, prize_amount: share }))
+    winnersList.match5.forEach(uid => {
+      winnersToInsert.push({ 
+        draw_id: draw.id, 
+        user_id: uid, 
+        match_type: 5, 
+        prize_amount: share 
+      })
+    })
   } else {
     // Rollover logic: Carry over pool5 to next draw metadata (or separate table)
     // For simplicity, we can store it in a 'rollovers' table or 'draws.rollover_amount'
@@ -77,12 +84,26 @@ export async function publishDraw(drawDate: string, winningNumbers: number[], po
 
   if (winnersList.match4.length > 0) {
     const share = pool4 / winnersList.match4.length
-    winnersList.match4.forEach(uid => winnersToInsert.push({ draw_id: draw.id, user_id: uid, match_type: 4, prize_amount: share }))
+    winnersList.match4.forEach(uid => {
+      winnersToInsert.push({ 
+        draw_id: draw.id, 
+        user_id: uid, 
+        match_type: 4, 
+        prize_amount: share 
+      })
+    })
   }
 
   if (winnersList.match3.length > 0) {
     const share = pool3 / winnersList.match3.length
-    winnersList.match3.forEach(uid => winnersToInsert.push({ draw_id: draw.id, user_id: uid, match_type: 3, prize_amount: share }))
+    winnersList.match3.forEach(uid => {
+      winnersToInsert.push({ 
+        draw_id: draw.id, 
+        user_id: uid, 
+        match_type: 3, 
+        prize_amount: share 
+      })
+    })
   }
 
   if (winnersToInsert.length > 0) {

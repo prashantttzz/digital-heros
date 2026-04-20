@@ -14,6 +14,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getScores } from '@/app/actions/scores'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { Score } from '@/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -76,7 +77,7 @@ export default async function DashboardPage() {
           <div>
             <p className="text-sm font-medium opacity-80 mb-1">Total Winnings</p>
             <h2 className="text-4xl font-black">
-              £{(winnings || []).reduce((acc: number, curr: any) => acc + curr.prize_amount, 0).toFixed(2)}
+              £{(winnings || []).reduce((acc: number, curr: { prize_amount: number }) => acc + curr.prize_amount, 0).toFixed(2)}
             </h2>
           </div>
           <Link href="/dashboard/winnings" className="text-sm font-bold flex items-center gap-1 group">
@@ -126,7 +127,7 @@ export default async function DashboardPage() {
             
             <div className="space-y-4">
               {scores.length > 0 ? (
-                scores.map((score: any, i: number) => (
+                scores.map((score: Score, i: number) => (
                   <div key={score.id} className="flex items-center justify-between p-4 rounded-2xl bg-secondary/50 group hover:bg-secondary transition-colors">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center font-bold">

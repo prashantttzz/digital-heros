@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getScores } from '@/app/actions/scores'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { Score } from '@/types'
 
 export default async function ScoresPage() {
   const supabase = await createClient()
@@ -62,7 +63,7 @@ export default async function ScoresPage() {
             
             <div className="space-y-4">
               {scores.length > 0 ? (
-                scores.map((score: any, i: number) => (
+                scores.map((score: Score) => (
                   <div key={score.id} className="flex items-center justify-between p-6 rounded-2xl bg-secondary/30 group hover:bg-secondary/50 transition-all">
                     <div className="flex items-center gap-6">
                       <div className="w-12 h-12 rounded-2xl bg-background border border-border flex items-center justify-center font-black text-lg">

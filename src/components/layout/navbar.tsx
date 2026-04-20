@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Heart, Trophy, User, LayoutDashboard, LogOut } from 'lucide-react'
+import { Heart, Trophy } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 const navItems = [
@@ -13,7 +12,6 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname()
-  const isDashboard = pathname.startsWith('/dashboard')
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-lg">

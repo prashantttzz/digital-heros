@@ -23,17 +23,20 @@ export async function POST(req: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
-  } catch (err: any) {
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return new NextResponse(`Webhook Error: ${message}`, { status: 400 })
   }
 
-  const session = event.data.object as any
+  const session = event.data.object as Stripe.Checkout.Session
 
   switch (event.type) {
     case 'checkout.session.completed':
-    case 'invoice.payment_succeeded':
-      const subscriptionId = session.subscription
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId as string)
+    case 'invoice.payment_succeeded': {
+      const subscriptionId = (session as any).subscription as string
+      if (!subscriptionId) break
+
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
       const userId = session.metadata?.supabase_user_id || subscription.metadata?.supabase_user_id
 
       if (userId) {
@@ -41,27 +44,29 @@ export async function POST(req: Request) {
           .from('subscriptions')
           .upsert({
             user_id: userId,
-            stripe_subscription_id: (subscription as any).id,
-            status: (subscription as any).status,
-            plan_type: (subscription as any).items.data[0].plan.interval === 'month' ? 'monthly' : 'yearly',
-            current_period_end: new Date((subscription as any).current_period_end * 1000).toISOString(),
-            cancel_at_period_end: (subscription as any).cancel_at_period_end,
+            stripe_subscription_id: subscription.id,
+            status: subscription.status,
+            plan_type: subscription.items.data[0].plan.interval === 'month' ? 'monthly' : 'yearly',
+            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            cancel_at_period_end: subscription.cancel_at_period_end,
           })
       }
       break
+    }
 
     case 'customer.subscription.deleted':
-    case 'customer.subscription.updated':
+    case 'customer.subscription.updated': {
       const sub = event.data.object as Stripe.Subscription
       await supabaseAdmin
         .from('subscriptions')
         .update({
           status: sub.status,
-          current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+          current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
           cancel_at_period_end: sub.cancel_at_period_end,
         })
         .eq('stripe_subscription_id', sub.id)
       break
+    }
   }
 
   return new NextResponse(null, { status: 200 })
