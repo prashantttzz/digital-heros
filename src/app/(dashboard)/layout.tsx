@@ -20,11 +20,21 @@ const sidebarItems = [
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
-export default function DashboardLayout({
+import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
+
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
@@ -53,10 +63,12 @@ export default function DashboardLayout({
 
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50">
-            <div className="w-10 h-10 rounded-full bg-slate-200 animate-pulse" />
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold text-white text-xs">
+               {user.email?.charAt(0).toUpperCase()}
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">Alex Hero</p>
-              <p className="text-xs text-muted-foreground truncate">alex@hero.com</p>
+               <p className="text-sm font-semibold truncate">{user.email?.split('@')[0]}</p>
+               <p className="text-[10px] uppercase font-bold text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
         </div>
