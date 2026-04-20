@@ -27,7 +27,11 @@ export default async function AdminDashboard() {
     .limit(5)
 
   const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true })
+  const { data: totalWinnings } = await supabase.from('winners').select('prize_amount')
   const { data: activeSubs } = await supabase.from('subscriptions').select('*').eq('status', 'active')
+  const { data: latestDraw } = await supabase.from('draws').select('*').order('draw_date', { ascending: false }).limit(1).maybeSingle()
+
+  const impactTotal = (totalWinnings || []).reduce((acc: number, curr: any) => acc + curr.prize_amount, 0)
 
   return (
     <div className="space-y-12">
@@ -49,28 +53,28 @@ export default async function AdminDashboard() {
         <AdminStatCard 
           label="Hero Network" 
           value={userCount?.toString() || '0'} 
-          trend="+12%" 
+          trend="Real-time" 
           color="emerald"
           icon={<Users className="w-5 h-5" />} 
         />
         <AdminStatCard 
           label="Impact Funding" 
-          value="£4,250.00" 
-          trend="+8%" 
+          value={`£${impactTotal.toLocaleString()}`} 
+          trend="Total Won" 
           color="blue"
           icon={<Heart className="w-5 h-5" />} 
         />
         <AdminStatCard 
           label="Live Draw Pool" 
-          value="£12,450" 
-          trend="+22%" 
+          value={`£${latestDraw?.jackpot_amount?.toLocaleString() || '0'}`} 
+          trend={latestDraw ? format(new Date(latestDraw.draw_date), 'MMM dd') : 'TBD'}
           color="amber"
           icon={<Trophy className="w-5 h-5" />} 
         />
         <AdminStatCard 
           label="Active Subs" 
           value={activeSubs?.length.toString() || '0'} 
-          trend="+5%" 
+          trend="Stripe Live" 
           color="indigo"
           icon={<Activity className="w-5 h-5" />} 
         />

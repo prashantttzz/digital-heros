@@ -44,3 +44,41 @@ export async function updateCharityPreference(charityId: string, percentage: num
   revalidatePath('/dashboard')
   return { success: true }
 }
+
+export async function addCharity(formData: FormData) {
+  const supabase = await createClient()
+  
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string
+  const logo_url = formData.get('logo_url') as string
+  const is_featured = formData.get('is_featured') === 'on'
+
+  const { error } = await supabase
+    .from('charities')
+    .insert({
+      name,
+      description,
+      logo_url,
+      is_featured
+    })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin/charities')
+  revalidatePath('/dashboard/charity')
+  return { success: true }
+}
+
+export async function deleteCharity(id: string) {
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('charities')
+    .delete()
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin/charities')
+  revalidatePath('/dashboard/charity')
+  return { success: true }
+}

@@ -10,7 +10,20 @@ export default function AdminDrawsPage() {
   const [winningNumbers, setWinningNumbers] = useState<number[]>([0, 0, 0, 0, 0])
   const [isSimulating, setIsSimulating] = useState(false)
   const [simResults, setSimResults] = useState<any>(null)
-  const [poolAmount, setPoolAmount] = useState(12450.00)
+  const [poolAmount, setPoolAmount] = useState(0)
+  const [history, setHistory] = useState<any[]>([])
+  const supabase = createClient()
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data: latest } = await supabase.from('draws').select('*').order('draw_date', { ascending: false }).limit(1).maybeSingle()
+      if (latest) setPoolAmount(Number(latest.jackpot_amount))
+
+      const { data: past } = await supabase.from('draws').select('*').eq('status', 'published').order('draw_date', { ascending: false }).limit(3)
+      setHistory(past || [])
+    }
+    fetchStats()
+  }, [])
 
   const handleSimulate = async () => {
     if (winningNumbers.some(n => n === 0)) {
@@ -110,16 +123,15 @@ export default function AdminDrawsPage() {
               Recent History
             </h3>
             <div className="space-y-3">
-              {[
-                { date: 'March 2026', nums: [12, 45, 8, 3, 22], winners: 45 },
-                { date: 'Feb 2026', nums: [33, 4, 19, 14, 40], winners: 32 }
-              ].map((h, i) => (
+              {history.length > 0 ? history.map((h, i) => (
                 <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 italic text-slate-500 text-sm">
-                  <span>{h.date}</span>
-                  <span className="font-bold text-slate-800">{h.nums.join(' · ')}</span>
-                  <span className="text-xs font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{h.winners} Winners</span>
+                  <span>{format(new Date(h.draw_date), 'MMMM yyyy')}</span>
+                  <span className="font-bold text-slate-800">{h.winning_numbers?.join(' · ')}</span>
+                  <span className="text-xs font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Archive</span>
                 </div>
-              ))}
+              )) : (
+                <p className="text-xs text-slate-400 italic text-center py-4">No historical draws found.</p>
+              )}
             </div>
           </div>
         </div>

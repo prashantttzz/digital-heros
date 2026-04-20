@@ -33,6 +33,19 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .maybeSingle()
 
+  const { data: winnings } = await supabase
+    .from('winners')
+    .select('prize_amount')
+    .eq('user_id', user.id)
+
+  const { data: nextDraw } = await supabase
+    .from('draws')
+    .select('*')
+    .eq('status', 'published')
+    .order('draw_date', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
   const scores = await getScores()
   const isSubscribed = subscription?.status === 'active' || subscription?.status === 'trialing'
 
@@ -62,7 +75,9 @@ export default async function DashboardPage() {
         <div className="md:w-64 p-8 rounded-3xl bg-accent text-accent-foreground shadow-2xl shadow-accent/20 flex flex-col justify-between">
           <div>
             <p className="text-sm font-medium opacity-80 mb-1">Total Winnings</p>
-            <h2 className="text-4xl font-black">£0.00</h2>
+            <h2 className="text-4xl font-black">
+              £{(winnings || []).reduce((acc: number, curr: any) => acc + curr.prize_amount, 0).toFixed(2)}
+            </h2>
           </div>
           <Link href="/dashboard/winnings" className="text-sm font-bold flex items-center gap-1 group">
             View details
@@ -156,9 +171,11 @@ export default async function DashboardPage() {
 
           <div className="p-8 rounded-3xl bg-slate-900 text-white shadow-2xl relative overflow-hidden">
             <div className="relative z-10">
-              <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Next Draw</p>
-              <h3 className="text-2xl font-bold mb-1">May 1st, 2026</h3>
-              <p className="text-sm text-slate-400 mb-6">Current Pool: £12,450.00</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-widest mb-2">Active Draw</p>
+              <h3 className="text-2xl font-bold mb-1">
+                {nextDraw ? format(new Date(nextDraw.draw_date), 'MMMM do') : 'TBD'}
+              </h3>
+              <p className="text-sm text-slate-400 mb-6">Current Pool: £{nextDraw?.jackpot_amount?.toLocaleString() || '0.00'}</p>
             </div>
             <Trophy className="absolute -bottom-4 -right-4 w-32 h-32 text-white/5 rotate-12" />
           </div>

@@ -15,6 +15,19 @@ export default function CharityDashboard() {
 
   useEffect(() => {
     getCharities().then(setCharities)
+    
+    const fetchProfile = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase.from('profiles').select('charity_id, charity_percentage').eq('id', user.id).single()
+      if (data) {
+        setSelectedId(data.charity_id)
+        setPercentage(data.charity_percentage || 10)
+      }
+    }
+    fetchProfile()
   }, [])
 
   const handleSave = async () => {
